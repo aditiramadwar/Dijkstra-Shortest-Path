@@ -1,6 +1,14 @@
 import numpy as np
 import heapq as hq
 
+def backtrack(parent, goal, start):
+    final_path = []
+    node = goal
+    while node != start:
+        node = parent[node]
+        final_path.append(node)
+    return final_path
+
 def get_children(parent_node, image):
     child_list = []
     # right up
@@ -49,6 +57,7 @@ def djk (image, start, goal):
     que = []
     visited = []
     nodes_cost = {}
+    parent_nodes = {}
 
     nodes_cost[start] = 0
     hq.heappush(que, (0, start))
@@ -68,19 +77,21 @@ def djk (image, start, goal):
                     if child in nodes_cost:
                         if cur_child_cost < nodes_cost[child]:
                             nodes_cost[child] = cur_child_cost
+                            parent_nodes[child] = curr_node
                             # update the queue with the new smaller cost of the node
                             hq.heapreplace(que, (cur_child_cost, child))
                             hq.heapify(que)
                     # if it is a new node being explored, add it to the dictionary
                     else:
                         nodes_cost[child] = cur_child_cost
+                        parent_nodes[child] = curr_node
                         # append the node in queue
                         hq.heappush(que, (cur_child_cost, child))
                         hq.heapify(que)
 
                     if child == goal:
-                        return True, image, nodes_cost
-    return False, image, nodes_cost
+                        return True, image, nodes_cost, parent_nodes
+    return False, image, nodes_cost, parent_nodes
 
 # initialize grid 
 w = np.ones([400, 250, 3], dtype = np.uint8)
@@ -89,6 +100,8 @@ start = (0, 0)
 goal = (10, 10)
 
 # start searching for shortest path
-flag, w, cost = djk (w, start, goal)
+flag, w, cost, parents = djk (w, start, goal)
 if (flag):
     print("Path Found")
+    path = backtrack(parents, goal, start)
+    print("Shortest Path: ", path)
