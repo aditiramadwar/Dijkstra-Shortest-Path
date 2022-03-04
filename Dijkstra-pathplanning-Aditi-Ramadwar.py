@@ -61,6 +61,7 @@ def backtrack(parent, goal, start):
         final_path.append(node)
     return final_path
 
+# Action sets= {(1,0), (-1,0), (0,1), (0,-1), (1,1), (-1,1),(1,-1),(-1,-1)}
 def get_children(parent_node, image):
     child_list = []
     # right up
@@ -184,7 +185,7 @@ else:
     rgb_w = cv2.flip(rgb_w, 0)
     rgb_w = cv2.flip(rgb_w, 1)
     rgb_w = cv2.rotate(rgb_w, cv2.cv2.ROTATE_90_CLOCKWISE)
-    cv2.imshow("Explored region", rgb_w)
+    cv2.imshow("Grid", rgb_w)
     cv2.waitKey(0)
     cv2.destroyAllWindows()
     print("Valid start and goal points. Searching for shortest path...")
@@ -194,7 +195,13 @@ else:
         print("Path Found. Backtracking...")
         shortest_path = backtrack(parents, goal, start)
         print("Done. Starting Visualizaiton!")
-        
+        rgb_w = cv2.resize(w, (1000, 1600), interpolation = cv2.INTER_AREA)
+        rgb_w = cv2.flip(rgb_w, 0)
+        rgb_w = cv2.flip(rgb_w, 1)
+        rgb_w = cv2.rotate(rgb_w, cv2.cv2.ROTATE_90_CLOCKWISE)
+        cv2.imshow("Explored region", rgb_w)
+        cv2.waitKey(0)
+        cv2.destroyAllWindows()
         # animate nodes explored
         for vis in visited:
             w[int(vis[0]), int(vis[1]), :] = [255, 0, 0]
@@ -212,7 +219,7 @@ else:
 
         # Show the final path on grid    
         img = w.copy()
-        img = cv2.resize(img, (1000, 1600), interpolation = cv2.INTER_AREA)
+        # img = cv2.resize(img, (1000, 1600), interpolation = cv2.INTER_AREA)
         img = cv2.flip(img, 0)
         img = cv2.flip(img, 1)
         img = cv2.rotate(img, cv2.cv2.ROTATE_90_CLOCKWISE)
