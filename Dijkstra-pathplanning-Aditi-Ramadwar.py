@@ -22,41 +22,49 @@ def get_children(parent_node, image):
     # right up
     idx = (parent_node[0]+1, parent_node[1]+1)
     if idx[0] < image.shape[0] and idx[1] < image.shape[1]:
+        if (image[idx[0], idx[1]][2] != 160):
             child_list.append((idx, 1.4))
 
     # left up
     idx = (parent_node[0]+1, parent_node[1]-1)
     if idx[0] < image.shape[0] and idx[1] >= 0:
+        if (image[idx[0], idx[1]][2] != 160):
             child_list.append((idx, 1.4))
 
     # right down
     idx = (parent_node[0]-1, parent_node[1]+1)
     if idx[0] >= 0 and idx[1] < image.shape[1]:
+        if (image[idx[0], idx[1]][2] != 160):
             child_list.append((idx, 1.4))
 
     # left down
     idx = (parent_node[0]-1, parent_node[1]-1)
     if idx[0] >= 0 and idx[1] >= 0:
+        if (image[idx[0], idx[1]][2] != 160):
             child_list.append((idx, 1.4))
 
     # up
     idx = (parent_node[0]+1, parent_node[1])
     if idx[0] < image.shape[0]:
+        if (image[idx[0], idx[1]][2] != 160):
             child_list.append((idx, 1))
 
     # down
     idx = (parent_node[0]-1, parent_node[1])
     if idx[0] >= 0:
+        if (image[idx[0], idx[1]][2] != 160):
             child_list.append((idx, 1))
 
     # right
     idx = (parent_node[0], parent_node[1]+1)
     if idx[1] < image.shape[1]:
+        if (image[idx[0], idx[1]][2] != 160):
             child_list.append((idx, 1))
 
     # left
     idx = (parent_node[0], parent_node[1]-1)
     if idx[1] >= 0:
+        if (image[idx[0], idx[1]][2] != 160):
             child_list.append((idx, 1))
 
     return child_list
