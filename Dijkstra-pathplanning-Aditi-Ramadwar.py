@@ -8,6 +8,15 @@ def circle(x, y):
     circ_eq = ((x - 300) ** 2 + (y - 185) ** 2 - 40 * 40) < 0
     return circ_eq
 
+def hexa(x, y):
+    edg_1 = (-0.571 * x + 174.286 - y) < 0
+    edg_2 = (-0.571 * x + 254.286 - y) > 0
+    edg_3 = (0.571 * x + 25.714 - y) > 0
+    edg_4 = (0.571 * x - 54.286 - y) < 0
+    edg_5 = (235 - x) >= 0
+    edg_6 = (165 - x) <= 0
+    return edg_1 and edg_2 and edg_3 and edg_4 and edg_5 and edg_6
+
 def backtrack(image, parent, goal, start):
     final_path = []
     node = goal
@@ -117,7 +126,7 @@ w = 255 * w
 # add obstacles on the grid
 for x_pos in range(w.shape[0]):
     for y_pos in range(w.shape[1]):
-        if (circle(x_pos, y_pos)):
+        if (circle(x_pos, y_pos) or hexa(x_pos, y_pos)):
             w[x_pos, y_pos] = [0, 0, 160]
 
 # initialize start and goal 
