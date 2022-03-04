@@ -17,6 +17,14 @@ def hexa(x, y):
     edg_6 = (165 - x) <= 0
     return edg_1 and edg_2 and edg_3 and edg_4 and edg_5 and edg_6
 
+def quad(x, y):
+    side_1 = (0.316 * x + 173.608 - y) > 0
+    side_2 = (0.857 * x + 111.429 - y) < 0
+    min_line = (-0.114 * x + 189.091 - y) < 0
+    side_3 = (-3.2 * x + 436 - y) > 0
+    side_4 = (-1.232 * x + 229.348 - y) < 0
+    return (side_1 and side_2 and min_line) or (side_3 and side_4 and not min_line)
+
 def backtrack(image, parent, goal, start):
     final_path = []
     node = goal
@@ -126,7 +134,7 @@ w = 255 * w
 # add obstacles on the grid
 for x_pos in range(w.shape[0]):
     for y_pos in range(w.shape[1]):
-        if (circle(x_pos, y_pos) or hexa(x_pos, y_pos)):
+        if (circle(x_pos, y_pos) or hexa(x_pos, y_pos) or quad(x_pos, y_pos)):
             w[x_pos, y_pos] = [0, 0, 160]
 
 # initialize start and goal 
