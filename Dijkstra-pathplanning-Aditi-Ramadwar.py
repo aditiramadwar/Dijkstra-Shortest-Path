@@ -2,6 +2,7 @@ import numpy as np
 import heapq as hq
 import cv2
 import copy
+from queue import PriorityQueue
 # create obstacles with clearance
 def circle(x, y):
     circ_eq = ((x - 300) ** 2 + (y - 185) ** 2 - 40 * 40) < 0
@@ -22,15 +23,6 @@ def hexa_boundry(x, y):
     edg_5 = (240 - x) >= 0 # point 7 # right 
     edg_6 = (160 - x) <= 0 # point 9 # left
     return edg_1 and edg_2 and edg_3 and edg_4 and edg_5 and edg_6
-def quad_boundry(x,y):
-
-    side_1 = (0.316 * x + 173.608 - y) >= -5 # up left
-    side_2 = (0.857 * x + 111.429 - y) <= 7 #up right
-    min_line = (-0.114 * x + 189.091 - y) <= 0
-    side_3 = (-3.2 * x + 436 - y) >= -15
-     # down right
-    side_4 = (-1.232 * x + 229.348 - y) <= 10 #down left
-    return (side_1 and side_2 and min_line) or (side_3 and side_4 and not min_line)
 
 def hexa(x, y):
     edg_1 = (-0.571 * x + 174.286 - y) <= 0
@@ -43,15 +35,22 @@ def hexa(x, y):
     edg_6 = (165 - x) <= 0 # point 9
     return edg_1 and edg_2 and edg_3 and edg_4 and edg_5 and edg_6
 
+def quad_boundry(x,y):
+
+    side_1 = (0.316 * x + 173.608 - y) >= -5 # up left
+    side_2 = (0.857 * x + 111.429 - y) <= 7 #up right
+    min_line = (-0.114 * x + 189.091 - y) <= 0
+    side_3 = (-3.2 * x + 436 - y) >= -15
+     # down right
+    side_4 = (-1.232 * x + 229.348 - y) <= 10 #down left
+    return (side_1 and side_2 and min_line) or (side_3 and side_4 and not min_line)
+    
 def quad(x, y):
     side_1 = (0.316 * x + 173.608 - y) >= 0
     side_2 = (0.857 * x + 111.429 - y) <= 0
     min_line = (-0.114 * x + 189.091 - y) <= 0
     side_3 = (-3.2 * x + 436 - y) >= 0
     side_4 = (-1.232 * x + 229.348 - y) <= 0
-
-
-
     return (side_1 and side_2 and min_line) or (side_3 and side_4 and not min_line)
 
 def backtrack(image, parent, goal, start):
@@ -115,15 +114,15 @@ def get_children(parent_node, image):
     return child_list
 
 def djk (image, start, goal):
-    que = []
     visited = [start]
     nodes_cost = {}
     parent_nodes = {}
     nodes_cost[start] = 0
-    hq.heappush(que, (0, start))
-    while (len(que) > 0):
+    que = PriorityQueue()
+    que.put((0,start))
+    while (que):
         # get the curr_node with the lowest cost and which hasn't been visited yet
-        cur_cost, curr_node = hq.heappop(que)
+        cur_cost, curr_node = que.get()
         if curr_node == goal:
                 return True, image, nodes_cost, parent_nodes, visited
 
@@ -140,14 +139,12 @@ def djk (image, start, goal):
                         if cur_child_cost < nodes_cost[child]:
                             nodes_cost[child] = cur_child_cost
                             # update the queue with the new smaller cost of the node
-                            hq.heapreplace(que, (cur_child_cost, child))
-                            hq.heapify(que)
+                            que.put((cur_child_cost, child))
                     # if it is a new node being explored, add it to the dictionary
                     else:
                         nodes_cost[child] = cur_child_cost
                         # append the node in queue
-                        hq.heappush(que, (cur_child_cost, child))
-                        hq.heapify(que)
+                        que.put((cur_child_cost, child))
 
                     parent_nodes[child] = curr_node
 
@@ -167,16 +164,18 @@ for x_pos in range(w.shape[0]):
             w[x_pos, y_pos] = [0 , 0, 160]
 
 
-rgb_w = cv2.resize(w, (1000, 1600), interpolation = cv2.INTER_AREA)
-rgb_w = cv2.flip(rgb_w, 0)
-rgb_w = cv2.flip(rgb_w, 1)
-rgb_w = cv2.rotate(rgb_w, cv2.cv2.ROTATE_90_CLOCKWISE)
-cv2.imshow("Explored region", rgb_w)
-cv2.waitKey(0)
-cv2.destroyAllWindows()
+# rgb_w = cv2.resize(w, (1000, 1600), interpolation = cv2.INTER_AREA)
+# rgb_w = cv2.flip(rgb_w, 0)
+# rgb_w = cv2.flip(rgb_w, 1)
+# rgb_w = cv2.rotate(rgb_w, cv2.cv2.ROTATE_90_CLOCKWISE)
+# cv2.imshow("Explored region", rgb_w)
+# cv2.waitKey(0)
+# cv2.destroyAllWindows()
 # initialize start and goal 
 start = (0, 0)
-goal = (399, 249)
+goal = (150, 150)
+w[start[0], start[1]] = [255, 0, 255]
+w[goal[0], goal[1]] = [255, 0, 255]
 
 #check if goal not is not in obstacle space
 if w[goal[0], goal[1]][2] < 255:
@@ -189,12 +188,13 @@ else:
                 print("Path Found. Backtracking...")
                 shortest_path, img = backtrack(img, parents, goal, start)
                 print("Done")
+                
                 # animate nodes explored
                 for vis in visited:
                         w[int(vis[0]), int(vis[1]), :] = [255, 0, 0]
                         img = w.copy()
 
-                        img = cv2.resize(img, (1000, 1600), interpolation = cv2.INTER_AREA)
+                        # img = cv2.resize(img, (1000, 1600), interpolation = cv2.INTER_AREA)
                         img = cv2.flip(img, 0)
                         img = cv2.flip(img, 1)
                         img = cv2.rotate(img, cv2.cv2.ROTATE_90_CLOCKWISE)
