@@ -44,7 +44,7 @@ def quad_boundry(x,y):
      # down right
     side_4 = (-1.232 * x + 229.348 - y) <= 10 #down left
     return (side_1 and side_2 and min_line) or (side_3 and side_4 and not min_line)
-    
+
 def quad(x, y):
     side_1 = (0.316 * x + 173.608 - y) >= 0
     side_2 = (0.857 * x + 111.429 - y) <= 0
@@ -124,29 +124,29 @@ def djk (image, start, goal):
         # get the curr_node with the lowest cost and which hasn't been visited yet
         cur_cost, curr_node = que.get()
         if curr_node == goal:
-                return True, image, nodes_cost, parent_nodes, visited
+            return True, image, nodes_cost, parent_nodes, visited
 
         children = get_children(curr_node, image)
         for child, child_cost in children:
-                if child not in visited:
-                    # add cost with the child cost with the parent cost
-                    cur_child_cost =  child_cost + cur_cost
-                    visited.append(child)
+            if child not in visited:
+                # add cost with the child cost with the parent cost
+                cur_child_cost =  child_cost + cur_cost
+                visited.append(child)
 
-                    # if this cost is less than the prev stored cost of this nodex  
-                    # then update the cost and the parent node
-                    if child in nodes_cost:
-                        if cur_child_cost < nodes_cost[child]:
-                            nodes_cost[child] = cur_child_cost
-                            # update the queue with the new smaller cost of the node
-                            que.put((cur_child_cost, child))
-                    # if it is a new node being explored, add it to the dictionary
-                    else:
+                # if this cost is less than the prev stored cost of this nodex  
+                # then update the cost and the parent node
+                if child in nodes_cost:
+                    if cur_child_cost < nodes_cost[child]:
                         nodes_cost[child] = cur_child_cost
-                        # append the node in queue
+                        # update the queue with the new smaller cost of the node
                         que.put((cur_child_cost, child))
+                # if it is a new node being explored, add it to the dictionary
+                else:
+                    nodes_cost[child] = cur_child_cost
+                    # append the node in queue
+                    que.put((cur_child_cost, child))
 
-                    parent_nodes[child] = curr_node
+                parent_nodes[child] = curr_node
 
     return False, image, nodes_cost, parent_nodes, visited
 
@@ -163,58 +163,74 @@ for x_pos in range(w.shape[0]):
         if (circle(x_pos, y_pos) or hexa(x_pos, y_pos) or quad(x_pos, y_pos)):
             w[x_pos, y_pos] = [0 , 0, 160]
 
-
-# rgb_w = cv2.resize(w, (1000, 1600), interpolation = cv2.INTER_AREA)
-# rgb_w = cv2.flip(rgb_w, 0)
-# rgb_w = cv2.flip(rgb_w, 1)
-# rgb_w = cv2.rotate(rgb_w, cv2.cv2.ROTATE_90_CLOCKWISE)
-# cv2.imshow("Explored region", rgb_w)
-# cv2.waitKey(0)
-# cv2.destroyAllWindows()
 # initialize start and goal 
-start = (0, 0)
-goal = (150, 150)
-w[start[0], start[1]] = [255, 0, 255]
-w[goal[0], goal[1]] = [255, 0, 255]
+def getStart():
+    x = int(input('Enter x coordinate for start point: '))
+    y = int(input('Enter y coordinate for start point: '))
+    return (x, y)
+
+def getGoal():
+    x = int(input('Enter x coordinate for goal point: '))
+    y = int(input('Enter y coordinate for goal point: '))
+    return (x, y)
+
+print("##### Start Point #####")
+start = getStart()
+print("##### Goal Point #####")
+goal = getGoal()
+
+# start = (0, 0)
+# goal = (150, 150)
 
 #check if goal not is not in obstacle space
-if w[goal[0], goal[1]][2] < 255:
-    print("IN OBSTACLE!!")
+if w[start[0], start[1]][2] < 255 or start[0] > w.shape[0] or start[0] < 0  or start[1] > w.shape[1] or start[1] < 0:
+    print("The start point ", start, "is not a valid point. Please enter a new start point")
+
+elif w[goal[0], goal[1]][2] < 255 or goal[0] > w.shape[0] or goal[0] < 0  or goal[1] > w.shape[1] or goal[1] < 0:
+    print("The goal point ", goal, "is not a valid point. Please enter a new goal point")
+
 else:
-        print("Valid goal. Searching for shortest path...")
-        # start searching for shortest path
-        flag, img, cost, parents, visited = djk (w, start, goal)
-        if (flag):
-                print("Path Found. Backtracking...")
-                shortest_path, img = backtrack(img, parents, goal, start)
-                print("Done")
-                
-                # animate nodes explored
-                for vis in visited:
-                        w[int(vis[0]), int(vis[1]), :] = [255, 0, 0]
-                        img = w.copy()
 
-                        # img = cv2.resize(img, (1000, 1600), interpolation = cv2.INTER_AREA)
-                        img = cv2.flip(img, 0)
-                        img = cv2.flip(img, 1)
-                        img = cv2.rotate(img, cv2.cv2.ROTATE_90_CLOCKWISE)
-                        cv2.imshow("Grid", img)
-                        cv2.waitKey(1)
+    w[start[0], start[1]] = [255, 0, 255]
+    w[goal[0], goal[1]] = [255, 0, 255]
+    rgb_w = cv2.resize(w, (1000, 1600), interpolation = cv2.INTER_AREA)
+    rgb_w = cv2.flip(rgb_w, 0)
+    rgb_w = cv2.flip(rgb_w, 1)
+    rgb_w = cv2.rotate(rgb_w, cv2.cv2.ROTATE_90_CLOCKWISE)
+    cv2.imshow("Explored region", rgb_w)
+    cv2.waitKey(0)
+    cv2.destroyAllWindows()
+    print("Valid start and goal points. Searching for shortest path...")
+    # start searching for shortest path
+    flag, img, cost, parents, visited = djk (w, start, goal)
+    if (flag):
+        print("Path Found. Backtracking...")
+        shortest_path, img = backtrack(img, parents, goal, start)
+        print("Done")
+        
+        # animate nodes explored
+        for vis in visited:
+            w[int(vis[0]), int(vis[1]), :] = [255, 0, 0]
+            img = w.copy()
+            # img = cv2.resize(img, (1000, 1600), interpolation = cv2.INTER_AREA)
+            img = cv2.flip(img, 0)
+            img = cv2.flip(img, 1)
+            img = cv2.rotate(img, cv2.cv2.ROTATE_90_CLOCKWISE)
+            cv2.imshow("Grid", img)
+            cv2.waitKey(1)
 
-                # show path
-                for node in shortest_path:
-                        w[int(node[0]), int(node[1]), :] = [0, 255, 0]
-                img = w.copy()
-                img = cv2.resize(img, (1000, 1600), interpolation = cv2.INTER_AREA)
-                img = cv2.flip(img, 0)
-                img = cv2.flip(img, 1)
-                img = cv2.rotate(img, cv2.cv2.ROTATE_90_CLOCKWISE)
-                cv2.imshow("Grid", img)
-                cv2.waitKey(0)
-        else:
-            print("No path found!")
-cv2.destroyAllWindows()
+        # show path
+        for node in shortest_path:
+            w[int(node[0]), int(node[1]), :] = [0, 255, 0]
 
-
-
-    
+        # Show the final path on grid    
+        img = w.copy()
+        img = cv2.resize(img, (1000, 1600), interpolation = cv2.INTER_AREA)
+        img = cv2.flip(img, 0)
+        img = cv2.flip(img, 1)
+        img = cv2.rotate(img, cv2.cv2.ROTATE_90_CLOCKWISE)
+        cv2.imshow("Grid", img)
+        cv2.waitKey(0)
+        cv2.destroyAllWindows()
+    else:
+        print("No path found!")
