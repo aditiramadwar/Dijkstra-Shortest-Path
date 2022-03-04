@@ -139,14 +139,19 @@ for x_pos in range(w.shape[0]):
 
 # initialize start and goal 
 start = (0, 0)
-goal = (10, 10)
+goal = (100, 100)
 
-# start searching for shortest path
-flag, w, cost, parents = djk (w, start, goal)
-if (flag):
-    print("Path Found")
-    path, w = backtrack(w, parents, goal, start)
-    print("Shortest Path: ", path)
+#check if goal not is not in obstacle space
+if w[goal[0], goal[1]][2] == 160:
+    print("IN OBSTACLE!!")
+else:
+        print("Valid goal. Searching for shortest path...")
+        # start searching for shortest path
+        flag, w, cost, parents = djk (w, start, goal)
+        if (flag):
+                print("Path Found. Backtracking...")
+                path, w = backtrack(w, parents, goal, start)
+                # print("Shortest Path: ", path)
 
 w = ndimage.rotate(w, 90)
 imgplot = plt.imshow(w)
