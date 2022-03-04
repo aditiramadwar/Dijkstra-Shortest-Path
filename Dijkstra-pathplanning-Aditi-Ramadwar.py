@@ -113,18 +113,18 @@ def get_children(parent_node, image):
 
     return child_list
 
-def djk (image, start, goal):
+def djk (image, start, goal, c2c):
     visited = [start]
-    nodes_cost = {}
     parent_nodes = {}
-    nodes_cost[start] = 0
+
+    c2c[start[0], start[1]] = 0
     que = PriorityQueue()
     que.put((0,start))
     while (que):
         # get the curr_node with the lowest cost and which hasn't been visited yet
         cur_cost, curr_node = que.get()
         if curr_node == goal:
-            return True, image, nodes_cost, parent_nodes, visited
+            return True, image, parent_nodes, visited, c2c
 
         children = get_children(curr_node, image)
         for child, child_cost in children:
@@ -132,30 +132,20 @@ def djk (image, start, goal):
                 # add cost with the child cost with the parent cost
                 cur_child_cost =  child_cost + cur_cost
                 visited.append(child)
-
-                # if this cost is less than the prev stored cost of this nodex  
-                # then update the cost and the parent node
-                if child in nodes_cost:
-                    if cur_child_cost < nodes_cost[child]:
-                        nodes_cost[child] = cur_child_cost
-                        # update the queue with the new smaller cost of the node
-                        que.put((cur_child_cost, child))
-                # if it is a new node being explored, add it to the dictionary
-                else:
-                    nodes_cost[child] = cur_child_cost
-                    # append the node in queue
+                if c2c[child[0], child[1]] > cur_child_cost:
+                    c2c[child[0], child[1]] = cur_child_cost
                     que.put((cur_child_cost, child))
 
                 parent_nodes[child] = curr_node
 
-    return False, image, nodes_cost, parent_nodes, visited
+    return False, image, parent_nodes, visited, c2c
 
 # initialize grid 
 w = np.ones([400, 250, 3], dtype = np.uint8)
 w = 255 * w
 
 # create a cost to come matrix to store costs
-c2c_matrix = np.ones([400, 250, 3], dtype = np.uint8)
+c2c_matrix = np.ones([400, 250, 1], dtype = np.uint8)
 c2c_matrix = float('inf')*c2c_matrix
 
 # add obstacles on the grid and update cost of obstacle
@@ -168,7 +158,7 @@ for x_pos in range(w.shape[0]):
         if (circle(x_pos, y_pos) or hexa(x_pos, y_pos) or quad(x_pos, y_pos)):
             w[x_pos, y_pos] = [0 , 0, 160]
             c2c_matrix[x_pos, y_pos] = -1
-
+# print()
 # initialize start and goal 
 def getStart():
     x = int(input('Enter x coordinate for start point: '))
@@ -196,7 +186,6 @@ elif w[goal[0], goal[1]][2] < 255 or goal[0] > w.shape[0] or goal[0] < 0  or goa
     print("The goal point ", goal, "is not a valid point. Please enter a new goal point")
 
 else:
-
     w[start[0], start[1]] = [255, 0, 255]
     w[goal[0], goal[1]] = [255, 0, 255]
     rgb_w = cv2.resize(w, (1000, 1600), interpolation = cv2.INTER_AREA)
@@ -208,7 +197,7 @@ else:
     cv2.destroyAllWindows()
     print("Valid start and goal points. Searching for shortest path...")
     # start searching for shortest path
-    flag, img, cost, parents, visited = djk (w, start, goal)
+    flag, img, parents, visited, c2c = djk (w, start, goal, c2c_matrix)
     if (flag):
         print("Path Found. Backtracking...")
         shortest_path, img = backtrack(img, parents, goal, start)
