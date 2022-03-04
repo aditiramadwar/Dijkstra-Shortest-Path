@@ -154,14 +154,20 @@ def djk (image, start, goal):
 w = np.ones([400, 250, 3], dtype = np.uint8)
 w = 255 * w
 
-# add obstacles on the grid
+# create a cost to come matrix to store costs
+c2c_matrix = np.ones([400, 250, 3], dtype = np.uint8)
+c2c_matrix = float('inf')*c2c_matrix
+
+# add obstacles on the grid and update cost of obstacle
 for x_pos in range(w.shape[0]):
     for y_pos in range(w.shape[1]):
         # check if point is in any of the obstacle space
         if(hexa_boundry(x_pos, y_pos) or (circle_boundry(x_pos, y_pos)) or quad_boundry(x_pos, y_pos)):
             w[x_pos, y_pos] = [66, 176, 245]
+            c2c_matrix[x_pos, y_pos] = -1
         if (circle(x_pos, y_pos) or hexa(x_pos, y_pos) or quad(x_pos, y_pos)):
             w[x_pos, y_pos] = [0 , 0, 160]
+            c2c_matrix[x_pos, y_pos] = -1
 
 # initialize start and goal 
 def getStart():
