@@ -22,8 +22,8 @@ put video link
 
 ## Results
 ### Grid Visualization
-![enter image description here](https://github.com/aditiramadwar/Dijkstra-Shortest-Path/results/grid.png =250x250
+<img  alt="grid"  src="results/grid.png"  width="60%" /> 
 
 ### Path Search
-![enter image description here](https://github.com/aditiramadwar/Dijkstra-Shortest-Path/results/path.png =250x250
+<img  alt="path"  src="results/path.png"  width="60%" /> 
 
