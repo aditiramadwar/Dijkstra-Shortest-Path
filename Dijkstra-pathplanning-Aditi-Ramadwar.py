@@ -53,63 +53,55 @@ def quad(x, y):
     side_4 = (-1.232 * x + 229.348 - y) <= 0
     return (side_1 and side_2 and min_line) or (side_3 and side_4 and not min_line)
 
-def backtrack(image, parent, goal, start):
+def backtrack(parent, goal, start):
     final_path = []
     node = goal
     while node != start:
         node = parent[node]
         final_path.append(node)
-    return final_path, image
+    return final_path
 
 def get_children(parent_node, image):
     child_list = []
     # right up
     idx = (parent_node[0]+1, parent_node[1]+1)
-    if idx[0] < image.shape[0] and idx[1] < image.shape[1]:
-        if (image[idx[0], idx[1]][2] == 255):
-            child_list.append((idx, 1.4))
+    if idx[0] < image.shape[0] and idx[1] < image.shape[1] and (image[idx[0], idx[1]][2] == 255):
+        child_list.append((idx, 1.4))
 
     # left up
     idx = (parent_node[0]+1, parent_node[1]-1)
-    if idx[0] < image.shape[0] and idx[1] >= 0:
-        if (image[idx[0], idx[1]][2] == 255):
-            child_list.append((idx, 1.4))
+    if idx[0] < image.shape[0] and idx[1] >= 0 and (image[idx[0], idx[1]][2] == 255):
+        child_list.append((idx, 1.4))
 
     # right down
     idx = (parent_node[0]-1, parent_node[1]+1)
-    if idx[0] >= 0 and idx[1] < image.shape[1]:
-        if image[idx[0], idx[1]][2] == 255:
-            child_list.append((idx, 1.4))
+    if idx[0] >= 0 and idx[1] < image.shape[1] and (image[idx[0], idx[1]][2] == 255):
+        child_list.append((idx, 1.4))
 
     # left down
     idx = (parent_node[0]-1, parent_node[1]-1)
-    if idx[0] >= 0 and idx[1] >= 0:
-        if image[idx[0], idx[1]][2] == 255:
-            child_list.append((idx, 1.4))
+    if idx[0] >= 0 and idx[1] >= 0 and (image[idx[0], idx[1]][2] == 255):
+        child_list.append((idx, 1.4))
 
     # up
     idx = (parent_node[0]+1, parent_node[1])
-    if idx[0] < image.shape[0]:
-        if image[idx[0], idx[1]][2] == 255:
-            child_list.append((idx, 1))
+    if idx[0] < image.shape[0] and (image[idx[0], idx[1]][2] == 255):
+        child_list.append((idx, 1))
 
     # down
     idx = (parent_node[0]-1, parent_node[1])
-    if idx[0] >= 0:
-        if image[idx[0], idx[1]][2] == 255:
-            child_list.append((idx, 1))
+    if idx[0] >= 0 and (image[idx[0], idx[1]][2] == 255):
+        child_list.append((idx, 1))
 
     # right
     idx = (parent_node[0], parent_node[1]+1)
-    if idx[1] < image.shape[1]:
-        if image[idx[0], idx[1]][2] == 255:
-            child_list.append((idx, 1))
+    if idx[1] < image.shape[1] and (image[idx[0], idx[1]][2] == 255):
+        child_list.append((idx, 1))
 
     # left
     idx = (parent_node[0], parent_node[1]-1)
-    if idx[1] >= 0:
-        if image[idx[0], idx[1]][2] == 255:
-            child_list.append((idx, 1))
+    if idx[1] >= 0 and (image[idx[0], idx[1]][2] == 255):
+        child_list.append((idx, 1))
 
     return child_list
 
@@ -119,12 +111,13 @@ def djk (image, start, goal, c2c):
 
     c2c[start[0], start[1]] = 0
     que = PriorityQueue()
-    que.put((0,start))
+    que.put((0, start))
+
     while (que):
         # get the curr_node with the lowest cost and which hasn't been visited yet
         cur_cost, curr_node = que.get()
         if curr_node == goal:
-            return True, image, parent_nodes, visited, c2c
+            return True, parent_nodes, visited, c2c
 
         children = get_children(curr_node, image)
         for child, child_cost in children:
@@ -135,10 +128,9 @@ def djk (image, start, goal, c2c):
                 if c2c[child[0], child[1]] > cur_child_cost:
                     c2c[child[0], child[1]] = cur_child_cost
                     que.put((cur_child_cost, child))
+                    parent_nodes[child] = curr_node
 
-                parent_nodes[child] = curr_node
-
-    return False, image, parent_nodes, visited, c2c
+    return False, parent_nodes, visited, c2c
 
 # initialize grid 
 w = np.ones([400, 250, 3], dtype = np.uint8)
@@ -158,7 +150,7 @@ for x_pos in range(w.shape[0]):
         if (circle(x_pos, y_pos) or hexa(x_pos, y_pos) or quad(x_pos, y_pos)):
             w[x_pos, y_pos] = [0 , 0, 160]
             c2c_matrix[x_pos, y_pos] = -1
-# print()
+
 # initialize start and goal 
 def getStart():
     x = int(input('Enter x coordinate for start point: '))
@@ -197,11 +189,11 @@ else:
     cv2.destroyAllWindows()
     print("Valid start and goal points. Searching for shortest path...")
     # start searching for shortest path
-    flag, img, parents, visited, c2c = djk (w, start, goal, c2c_matrix)
+    flag, parents, visited, c2c = djk (w, start, goal, c2c_matrix)
     if (flag):
         print("Path Found. Backtracking...")
-        shortest_path, img = backtrack(img, parents, goal, start)
-        print("Done")
+        shortest_path = backtrack(parents, goal, start)
+        print("Done. Starting Visualizaiton!")
         
         # animate nodes explored
         for vis in visited:
