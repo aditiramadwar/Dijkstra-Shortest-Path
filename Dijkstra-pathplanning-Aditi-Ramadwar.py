@@ -70,6 +70,7 @@ def djk (image, start, goal):
             visited.append(curr_node)
             children = get_children(curr_node, image)
             for child, child_cost in children:
+                image[child[0], child[1]] = [255, 0, 0]
                 if child not in visited:
                     # add cost with the child cost with the parent cost
                     cur_child_cost =  child_cost + cur_cost
