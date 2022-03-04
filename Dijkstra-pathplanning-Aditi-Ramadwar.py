@@ -1,0 +1,94 @@
+import numpy as np
+import heapq as hq
+
+def get_children(parent_node, image):
+    child_list = []
+    # right up
+    idx = (parent_node[0]+1, parent_node[1]+1)
+    if idx[0] < image.shape[0] and idx[1] < image.shape[1]:
+            child_list.append((idx, 1.4))
+
+    # left up
+    idx = (parent_node[0]+1, parent_node[1]-1)
+    if idx[0] < image.shape[0] and idx[1] >= 0:
+            child_list.append((idx, 1.4))
+
+    # right down
+    idx = (parent_node[0]-1, parent_node[1]+1)
+    if idx[0] >= 0 and idx[1] < image.shape[1]:
+            child_list.append((idx, 1.4))
+
+    # left down
+    idx = (parent_node[0]-1, parent_node[1]-1)
+    if idx[0] >= 0 and idx[1] >= 0:
+            child_list.append((idx, 1.4))
+
+    # up
+    idx = (parent_node[0]+1, parent_node[1])
+    if idx[0] < image.shape[0]:
+            child_list.append((idx, 1))
+
+    # down
+    idx = (parent_node[0]-1, parent_node[1])
+    if idx[0] >= 0:
+            child_list.append((idx, 1))
+
+    # right
+    idx = (parent_node[0], parent_node[1]+1)
+    if idx[1] < image.shape[1]:
+            child_list.append((idx, 1))
+
+    # left
+    idx = (parent_node[0], parent_node[1]-1)
+    if idx[1] >= 0:
+            child_list.append((idx, 1))
+
+    return child_list
+
+def djk (image, start, goal):
+    que = []
+    visited = []
+    nodes_cost = {}
+
+    nodes_cost[start] = 0
+    hq.heappush(que, (0, start))
+    while (len(que) > 0):
+        # get the curr_node with the lowest cost and which hasn't been visited yet
+        cur_cost, curr_node = hq.heappop(que)
+        if curr_node not in visited:
+            visited.append(curr_node)
+            children = get_children(curr_node, image)
+            for child, child_cost in children:
+                if child not in visited:
+                    # add cost with the child cost with the parent cost
+                    cur_child_cost =  child_cost + cur_cost
+
+                    # if this cost is less than the prev stored cost of this nodex  
+                    # then update the cost and the parent node
+                    if child in nodes_cost:
+                        if cur_child_cost < nodes_cost[child]:
+                            nodes_cost[child] = cur_child_cost
+                            # update the queue with the new smaller cost of the node
+                            hq.heapreplace(que, (cur_child_cost, child))
+                            hq.heapify(que)
+                    # if it is a new node being explored, add it to the dictionary
+                    else:
+                        nodes_cost[child] = cur_child_cost
+                        # append the node in queue
+                        hq.heappush(que, (cur_child_cost, child))
+                        hq.heapify(que)
+
+                    if child == goal:
+                        return True, image, nodes_cost
+    return False, image, nodes_cost
+
+# initialize grid 
+w = np.ones([400, 250, 3], dtype = np.uint8)
+# initialize start and goal 
+start = (0, 0)
+goal = (10, 10)
+
+# start searching for shortest path
+flag, w, cost = djk (w, start, goal)
+if (flag):
+    print("Path Found")
