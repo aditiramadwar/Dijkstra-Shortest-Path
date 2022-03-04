@@ -2,6 +2,12 @@ import numpy as np
 import heapq as hq
 import cv2
 import matplotlib.pyplot as plt
+from scipy import ndimage
+# create obstacles with clearance
+def circle(x, y):
+    circ_eq = ((x - 300) ** 2 + (y - 185) ** 2 - 40 * 40) < 0
+    return circ_eq
+
 def backtrack(image, parent, goal, start):
     final_path = []
     node = goal
@@ -99,6 +105,13 @@ def djk (image, start, goal):
 # initialize grid 
 w = np.ones([400, 250, 3], dtype = np.uint8)
 w = 255 * w
+
+# add obstacles on the grid
+for x_pos in range(w.shape[0]):
+    for y_pos in range(w.shape[1]):
+        if (circle(x_pos, y_pos)):
+            w[x_pos, y_pos] = [0, 0, 160]
+
 # initialize start and goal 
 start = (0, 0)
 goal = (10, 10)
@@ -110,7 +123,6 @@ if (flag):
     path, w = backtrack(w, parents, goal, start)
     print("Shortest Path: ", path)
 
-plt.xlim([0, w.shape[0]])
-plt.ylim([0, w.shape[1]])
+w = ndimage.rotate(w, 90)
 imgplot = plt.imshow(w)
 plt.show()
