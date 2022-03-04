@@ -1,13 +1,15 @@
 import numpy as np
 import heapq as hq
-
-def backtrack(parent, goal, start):
+import cv2
+import matplotlib.pyplot as plt
+def backtrack(image, parent, goal, start):
     final_path = []
     node = goal
     while node != start:
         node = parent[node]
         final_path.append(node)
-    return final_path
+        image[node[0], node[1]] = [0, 255, 0]
+    return final_path, image
 
 def get_children(parent_node, image):
     child_list = []
@@ -95,6 +97,7 @@ def djk (image, start, goal):
 
 # initialize grid 
 w = np.ones([400, 250, 3], dtype = np.uint8)
+w = 255 * w
 # initialize start and goal 
 start = (0, 0)
 goal = (10, 10)
@@ -103,5 +106,10 @@ goal = (10, 10)
 flag, w, cost, parents = djk (w, start, goal)
 if (flag):
     print("Path Found")
-    path = backtrack(parents, goal, start)
+    path, w = backtrack(w, parents, goal, start)
     print("Shortest Path: ", path)
+
+plt.xlim([0, w.shape[0]])
+plt.ylim([0, w.shape[1]])
+imgplot = plt.imshow(w)
+plt.show()
