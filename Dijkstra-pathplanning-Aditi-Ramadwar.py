@@ -161,7 +161,7 @@ def getGoal():
     x = int(input('Enter x coordinate for goal point: '))
     y = int(input('Enter y coordinate for goal point: '))
     return (x, y)
-
+# print("")
 print("##### Start Point #####")
 start = getStart()
 print("##### Goal Point #####")
@@ -216,13 +216,14 @@ else:
         for node in shortest_path:
             w[int(node[0]), int(node[1]), :] = [0, 255, 0]
 
-        # Show the final path on grid    
-        img = w.copy()
-        # img = cv2.resize(img, (1000, 1600), interpolation = cv2.INTER_AREA)
-        img = cv2.flip(img, 0)
-        img = cv2.flip(img, 1)
-        img = cv2.rotate(img, cv2.cv2.ROTATE_90_CLOCKWISE)
-        cv2.imshow("Grid", img)
+            # Show the final path on grid    
+            img = w.copy()
+            # img = cv2.resize(img, (1000, 1600), interpolation = cv2.INTER_AREA)
+            img = cv2.flip(img, 0)
+            img = cv2.flip(img, 1)
+            img = cv2.rotate(img, cv2.cv2.ROTATE_90_CLOCKWISE)
+            cv2.imshow("Grid", img)
+            cv2.waitKey(1)
         cv2.waitKey(0)
         cv2.destroyAllWindows()
     else:
