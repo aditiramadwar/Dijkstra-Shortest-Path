@@ -165,11 +165,11 @@ def getGoal():
     return (x, y)
 print("Find the shortest path in a", w.shape[0],"x", w.shape[1], "space.")
 
-# start = getStart()
-# goal = getGoal()
+start = getStart()
+goal = getGoal()
 
-start = (0, 0)
-goal = (10, 10)
+# start = (0, 0)
+# goal = (10, 10)
 
 #check if goal not is not in obstacle space
 if w[start[0], start[1]][2] < 255 or start[0] > w.shape[0] or start[0] < 0  or start[1] > w.shape[1] or start[1] < 0:
