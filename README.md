@@ -9,9 +9,6 @@ Navigation of a point robot from start to goal point using Dijkstra's algorithm 
 -   Numpy
 -   queue
 
-put map picture
-put image for traveresed grid
-put video link
 ## Steps to run the package
 1.Clone the project 
 
