@@ -39,7 +39,7 @@ def arrow_boundry(x,y):
     side_2 = (0.857 * x + 104.429 - y) <= 0 #up right
     min_line = (-0.114 * x + 189.091 - y) <= 0
     side_3 = (-3.2 * x + 451 - y) >= 0 # down right
-    side_4 = (-1.232 * x + 219.348 - y) <= 0 #down left
+    side_4 = (-1.2 * x + 219.348 - y) <= 0 #down left
     return (side_1 and side_2 and min_line) or (side_3 and side_4 and not min_line)
 
 def arrow(x, y):
@@ -146,7 +146,8 @@ c2c_matrix = float('inf')*c2c_matrix
 for x_pos in range(w.shape[0]):
     for y_pos in range(w.shape[1]):
         # check if point is in any of the obstacle space
-        if(hexa_boundry(x_pos, y_pos) or (circle_boundry(x_pos, y_pos)) or arrow_boundry(x_pos, y_pos)):
+        if(hexa_boundry(x_pos, y_pos) or (circle_boundry(x_pos, y_pos)) or
+             arrow_boundry(x_pos, y_pos) or x_pos < 5 or y_pos < 5 or x_pos > w.shape[0]-5 or y_pos > w.shape[1]-5):
             w[x_pos, y_pos] = [66, 176, 245]
             c2c_matrix[x_pos, y_pos] = -1
         if (circle(x_pos, y_pos) or hexa(x_pos, y_pos) or arrow(x_pos, y_pos)):
@@ -163,12 +164,12 @@ def getGoal():
     x = int(input('Enter x coordinate for goal point: '))
     y = int(input('Enter y coordinate for goal point: '))
     return (x, y)
-print("Find the shortest path in a", w.shape[0],"x", w.shape[1], "space.")
+print("Find the shortest path in a", w.shape[0],"x", w.shape[1], "space with a clearance of 5mm.")
 
 start = getStart()
 goal = getGoal()
 
-# start = (0, 0)
+# start = (5, 5)
 # goal = (10, 10)
 
 #check if goal not is not in obstacle space
@@ -190,6 +191,7 @@ else:
         shortest_path = backtrack(parents, goal, start)
         print("Done, shortest path found in", len(shortest_path), "steps.")
         print("Starting Visualizaiton!")
+
         # animate nodes explored
         for vis in visited:
             w[int(vis[0]), int(vis[1]), :] = [255, 0, 0]
@@ -213,7 +215,7 @@ else:
             img = cv2.rotate(img, cv2.cv2.ROTATE_90_CLOCKWISE)
             cv2.imshow("Grid", img)
             cv2.waitKey(1)
-        # cv2.imwrite("results/test_case_2/Exploration.png", img)
+        # cv2.imwrite("results/test_case_1/Exploration.png", img)
         cv2.waitKey(0)
         cv2.destroyAllWindows()
     else:

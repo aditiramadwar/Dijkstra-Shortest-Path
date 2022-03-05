@@ -28,7 +28,7 @@ The red area is the obstacle space and the orange part is the clearance area.
 <img  alt="grid"  src="results/grid.png"  width="80%" /> 
 
 ### Exploration
-Start point = (0, 0)
+Start point = (6, 6)
 
 Goal point = (340, 210)
 
