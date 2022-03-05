@@ -23,7 +23,7 @@ Navigation of a point robot from start to goal point using Dijkstra's algorithm 
 ### Video link of exploration is found [here](https://drive.google.com/file/d/105A0ppi7QHxXfyw00jZwAXdum1rCDvay/view?usp=sharing)
 
 ### Grid Visualization
-The red area is the obstacle space and the orange part is the clearance area.
+The red area is the obstacle space and the orange part is the clearance area for the point robot.
 
 <img  alt="grid"  src="results/grid.png"  width="80%" /> 
 
@@ -38,6 +38,3 @@ Goal point = (340, 210)
 The green line across the grid is the representation of the shortest path that can be taken to reach the goal point from the start point.
 
 <img  alt="path"  src="results/path.png"  width="80%" /> 
-
-
-
