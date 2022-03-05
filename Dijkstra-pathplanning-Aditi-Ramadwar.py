@@ -1,7 +1,7 @@
-import numpy as np
-import heapq as hq
 import cv2
+import numpy as np
 from queue import PriorityQueue
+
 # create obstacles with clearance
 def circle(x, y):
     circ_eq = ((x - 300) ** 2 + (y - 185) ** 2 - 40 * 40) < 0
@@ -9,7 +9,7 @@ def circle(x, y):
 
 def circle_boundry(x, y):
     circ_eq1 = ((x - 300) ** 2 + (y - 185) ** 2 - 40 * 40) >= 0
-    circ_eq2 = ((x - 300) ** 2 + (y - 185) ** 2 - 45 * 45) < 5
+    circ_eq2 = ((x - 300) ** 2 + (y - 185) ** 2 - 45 * 45) < 0
     return circ_eq1  and circ_eq2
 
 def hexa_boundry(x, y):
@@ -35,13 +35,11 @@ def hexa(x, y):
     return edg_1 and edg_2 and edg_3 and edg_4 and edg_5 and edg_6
 
 def arrow_boundry(x,y):
-
-    side_1 = (0.316 * x + 173.608 - y) >= -5 # up left
-    side_2 = (0.857 * x + 111.429 - y) <= 7 #up right
+    side_1 = (0.316 * x + 178.608 - y) >= 0 # up left
+    side_2 = (0.857 * x + 104.429 - y) <= 0 #up right
     min_line = (-0.114 * x + 189.091 - y) <= 0
-    side_3 = (-3.2 * x + 436 - y) >= -15
-     # down right
-    side_4 = (-1.232 * x + 229.348 - y) <= 10 #down left
+    side_3 = (-3.2 * x + 451 - y) >= 0 # down right
+    side_4 = (-1.232 * x + 219.348 - y) <= 0 #down left
     return (side_1 and side_2 and min_line) or (side_3 and side_4 and not min_line)
 
 def arrow(x, y):
@@ -108,10 +106,14 @@ def get_children(parent_node, image):
 def djk (image, start, goal, c2c):
     visited = [start]
     parent_nodes = {}
-
     c2c[start[0], start[1]] = 0
     que = PriorityQueue()
     que.put((0, start))
+    
+    if (start== goal):
+        parent_nodes[start] = goal
+        visited.append(start)
+        return True, parent_nodes, visited, c2c
 
     while (que):
         # get the curr_node with the lowest cost and which hasn't been visited yet
@@ -163,11 +165,11 @@ def getGoal():
     return (x, y)
 print("Find the shortest path in a", w.shape[0],"x", w.shape[1], "space.")
 
-start = getStart()
-goal = getGoal()
+# start = getStart()
+# goal = getGoal()
 
-# start = (0, 0)
-# goal = (150, 150)
+start = (0, 0)
+goal = (10, 10)
 
 #check if goal not is not in obstacle space
 if w[start[0], start[1]][2] < 255 or start[0] > w.shape[0] or start[0] < 0  or start[1] > w.shape[1] or start[1] < 0:
@@ -179,6 +181,7 @@ elif w[goal[0], goal[1]][2] < 255 or goal[0] > w.shape[0] or goal[0] < 0  or goa
 else:
     w[start[0], start[1]] = [255, 0, 255]
     w[goal[0], goal[1]] = [255, 0, 255]
+
     print("Valid start and goal points. Searching for shortest path...")
     # start searching for shortest path
     flag, parents, visited, c2c = djk (w, start, goal, c2c_matrix)
@@ -210,6 +213,7 @@ else:
             img = cv2.rotate(img, cv2.cv2.ROTATE_90_CLOCKWISE)
             cv2.imshow("Grid", img)
             cv2.waitKey(1)
+        # cv2.imwrite("results/test_case_2/Exploration.png", img)
         cv2.waitKey(0)
         cv2.destroyAllWindows()
     else:
