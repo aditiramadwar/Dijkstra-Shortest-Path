@@ -1,7 +1,6 @@
 import numpy as np
 import heapq as hq
 import cv2
-import copy
 from queue import PriorityQueue
 # create obstacles with clearance
 def circle(x, y):
@@ -35,7 +34,7 @@ def hexa(x, y):
     edg_6 = (165 - x) <= 0 # point 9
     return edg_1 and edg_2 and edg_3 and edg_4 and edg_5 and edg_6
 
-def quad_boundry(x,y):
+def arrow_boundry(x,y):
 
     side_1 = (0.316 * x + 173.608 - y) >= -5 # up left
     side_2 = (0.857 * x + 111.429 - y) <= 7 #up right
@@ -45,7 +44,7 @@ def quad_boundry(x,y):
     side_4 = (-1.232 * x + 229.348 - y) <= 10 #down left
     return (side_1 and side_2 and min_line) or (side_3 and side_4 and not min_line)
 
-def quad(x, y):
+def arrow(x, y):
     side_1 = (0.316 * x + 173.608 - y) >= 0
     side_2 = (0.857 * x + 111.429 - y) <= 0
     min_line = (-0.114 * x + 189.091 - y) <= 0
@@ -145,10 +144,10 @@ c2c_matrix = float('inf')*c2c_matrix
 for x_pos in range(w.shape[0]):
     for y_pos in range(w.shape[1]):
         # check if point is in any of the obstacle space
-        if(hexa_boundry(x_pos, y_pos) or (circle_boundry(x_pos, y_pos)) or quad_boundry(x_pos, y_pos)):
+        if(hexa_boundry(x_pos, y_pos) or (circle_boundry(x_pos, y_pos)) or arrow_boundry(x_pos, y_pos)):
             w[x_pos, y_pos] = [66, 176, 245]
             c2c_matrix[x_pos, y_pos] = -1
-        if (circle(x_pos, y_pos) or hexa(x_pos, y_pos) or quad(x_pos, y_pos)):
+        if (circle(x_pos, y_pos) or hexa(x_pos, y_pos) or arrow(x_pos, y_pos)):
             w[x_pos, y_pos] = [0 , 0, 160]
             c2c_matrix[x_pos, y_pos] = -1
 

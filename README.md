@@ -22,8 +22,12 @@ put video link
 
 ## Results
 ### Grid Visualization
-<img  alt="grid"  src="results/grid.png"  width="60%" /> 
+<img  alt="grid"  src="results/grid.png"  width="80%" /> 
 
+### Exploration
+<img  alt="exploration"  src="results/visualization.gif"  width="80%" /> 
 ### Path Search
-<img  alt="path"  src="results/path.png"  width="60%" /> 
+<img  alt="path"  src="results/path.png"  width="80%" /> 
+
+### Video link found [here](https://drive.google.com/file/d/1lyqsqtS1m8MFKvUZ6Oeixfk0KQFr4nhr/view?usp=sharing)
 
