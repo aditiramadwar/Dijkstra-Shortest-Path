@@ -161,10 +161,9 @@ def getGoal():
     x = int(input('Enter x coordinate for goal point: '))
     y = int(input('Enter y coordinate for goal point: '))
     return (x, y)
-# print("")
-print("##### Start Point #####")
+print("Find the shortest path in a", w.shape[0],"x", w.shape[1], "space.")
+
 start = getStart()
-print("##### Goal Point #####")
 goal = getGoal()
 
 # start = (0, 0)
@@ -180,27 +179,14 @@ elif w[goal[0], goal[1]][2] < 255 or goal[0] > w.shape[0] or goal[0] < 0  or goa
 else:
     w[start[0], start[1]] = [255, 0, 255]
     w[goal[0], goal[1]] = [255, 0, 255]
-    rgb_w = cv2.resize(w, (1000, 1600), interpolation = cv2.INTER_AREA)
-    rgb_w = cv2.flip(rgb_w, 0)
-    rgb_w = cv2.flip(rgb_w, 1)
-    rgb_w = cv2.rotate(rgb_w, cv2.cv2.ROTATE_90_CLOCKWISE)
-    cv2.imshow("Grid", rgb_w)
-    cv2.waitKey(0)
-    cv2.destroyAllWindows()
     print("Valid start and goal points. Searching for shortest path...")
     # start searching for shortest path
     flag, parents, visited, c2c = djk (w, start, goal, c2c_matrix)
     if (flag):
         print("Path Found. Backtracking...")
         shortest_path = backtrack(parents, goal, start)
-        print("Done. Starting Visualizaiton!")
-        rgb_w = cv2.resize(w, (1000, 1600), interpolation = cv2.INTER_AREA)
-        rgb_w = cv2.flip(rgb_w, 0)
-        rgb_w = cv2.flip(rgb_w, 1)
-        rgb_w = cv2.rotate(rgb_w, cv2.cv2.ROTATE_90_CLOCKWISE)
-        cv2.imshow("Explored region", rgb_w)
-        cv2.waitKey(0)
-        cv2.destroyAllWindows()
+        print("Done, shortest path found in", len(shortest_path), "steps.")
+        print("Starting Visualizaiton!")
         # animate nodes explored
         for vis in visited:
             w[int(vis[0]), int(vis[1]), :] = [255, 0, 0]
