@@ -2,52 +2,80 @@ import cv2
 import numpy as np
 from queue import PriorityQueue
 
+# circle
+x_c = 300
+y_c = 185
+dia = 80
+rad = dia/2
+
+# arrow
+x1, y1 = 36, 185
+x2, y2 = 115, 210
+x3, y3 = 80, 180
+x4, y4 = 105, 100
+m_ul = (y2 - y1)/(x2 - x1)
+m_ur = (y3 - y2) / (x3 - x2)
+m_dl = (y1 - y4) / (x1 - x4)
+m_dr = (y4 - y3) / (x4 - x3)
+m_mid = (y3 - y1) / (x3 - x1)  
+
+# hexagon
+w = 70
+rad = w/np.sqrt(3)
+x5, y5 = 200, 100 + rad
+x6, y6 = 200 + (w/2), 100 + rad/2
+x7, y7 = 200 + (w/2), 100 - rad/2
+x8, y8 = 200, 100 - rad
+x0, y0 = 200 - (w/2), 100 + rad/2
+x9, y9 = 200 - (w/2), 100 - rad/2
+hex_m = (y5 - y0) / (x5 - x0)
+
 # create obstacles with clearance
 def circle(x, y):
-    circ_eq = ((x - 300) ** 2 + (y - 185) ** 2 - 40 * 40) < 0
+    circ_eq = ((x - x_c) ** 2 + (y - y_c) ** 2 - rad ** 2) < 0
     return circ_eq
 
 def circle_boundry(x, y):
-    circ_eq1 = ((x - 300) ** 2 + (y - 185) ** 2 - 40 * 40) >= 0
-    circ_eq2 = ((x - 300) ** 2 + (y - 185) ** 2 - 45 * 45) < 0
+    circ_eq1 = ((x - x_c) ** 2 + (y - y_c) ** 2 - rad ** 2) >= 0
+    circ_eq2 = ((x - x_c) ** 2 + (y - y_c) ** 2 - (rad + 5) ** 2) < 0
     return circ_eq1  and circ_eq2
 
 def hexa_boundry(x, y):
-    edg_1 = (-0.571 * x + 169.286 - y) <= 0 # down left
-    edg_2 = (-0.571 * x + 259.286 - y) >= 0 # up right
+    edg_1 = (-hex_m * x - (-hex_m * x8) + y8 - 5 - y) <= 0 #dl
+    edg_2 = (hex_m * x - (hex_m * x8) + y8 - 5 - y) <= 0 #dr
+    edg_3 = (-hex_m * x - (-hex_m * x5) + y5 + 5  - y) >= 0 #ur 
+    edg_4 = (hex_m * x - (hex_m * x5) + y5 + 5 - y) >= 0 #ul
 
-    edg_3 = (0.571 * x + 30.714 - y) >= 0
-    edg_4 = (0.571 * x - 59.286 - y) <= 0
-    
-    edg_5 = (240 - x) >= 0 # point 7 # right 
-    edg_6 = (160 - x) <= 0 # point 9 # left
+    edg_5 = (x6 + 5 - x) >= 0 # left
+    edg_6 = (x0 - 5 - x) <= 0 # right
+
     return edg_1 and edg_2 and edg_3 and edg_4 and edg_5 and edg_6
 
 def hexa(x, y):
-    edg_1 = (-0.571 * x + 174.286 - y) <= 0
-    edg_2 = (-0.571 * x + 254.286 - y) >= 0
+    edg_1 = (-hex_m * x - (-hex_m * x8) + y8 - y) <= 0 #dl
+    edg_2 = (hex_m * x - (hex_m * x8) + y8 - y) <= 0 #dr
+    edg_3 = (-hex_m * x - (-hex_m * x5) + y5 - y) >= 0 #ur 
+    edg_4 = (hex_m * x - (hex_m * x5) + y5 - y) >= 0 #ul
 
-    edg_3 = (0.571 * x + 25.714 - y) >= 0
-    edg_4 = (0.571 * x - 54.286 - y) <= 0
-    
-    edg_5 = (235 - x) >= 0 # point 7
-    edg_6 = (165 - x) <= 0 # point 9
+    edg_5 = (x6 - x) >= 0 # left
+    edg_6 = (x0 - x) <= 0 # right
+
     return edg_1 and edg_2 and edg_3 and edg_4 and edg_5 and edg_6
 
 def arrow_boundry(x,y):
-    side_1 = (0.316 * x + 178.608 - y) >= 0 # up left
-    side_2 = (0.857 * x + 104.429 - y) <= 0 #up right
-    min_line = (-0.114 * x + 189.091 - y) <= 0
-    side_3 = (-3.2 * x + 451 - y) >= 0 # down right
-    side_4 = (-1.2 * x + 219.348 - y) <= 0 #down left
+    side_1 = (m_ul * x - m_ul*x2 + y2 + 5 - y) >= 0
+    side_2 = (m_ur * x - m_ur*x2 + y2 - 5 - y) <= 0
+    side_3 = (m_dl * x - m_dl*x4 + y4 - 7 - y) <= 0
+    side_4 = (m_dr * x - m_dr*x4 + y4 + 15 - y) >= 0
+    min_line = (m_mid * x - m_mid * x3 + y3 - y) <= 0
     return (side_1 and side_2 and min_line) or (side_3 and side_4 and not min_line)
 
 def arrow(x, y):
-    side_1 = (0.316 * x + 173.608 - y) >= 0
-    side_2 = (0.857 * x + 111.429 - y) <= 0
-    min_line = (-0.114 * x + 189.091 - y) <= 0
-    side_3 = (-3.2 * x + 436 - y) >= 0
-    side_4 = (-1.232 * x + 229.348 - y) <= 0
+    side_1 = (m_ul * x - m_ul*x2 + y2 - y) >= 0
+    side_2 = (m_ur * x - m_ur*x2 + y2 - y) <= 0
+    side_3 = (m_dl * x - m_dl*x4 + y4 - y) <= 0
+    side_4 = (m_dr * x - m_dr*x4 + y4 - y) >= 0
+    min_line = (m_mid * x - m_mid * x3 + y3 - y) <= 0
     return (side_1 and side_2 and min_line) or (side_3 and side_4 and not min_line)
 
 def backtrack(parent, goal, start):
